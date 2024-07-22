@@ -6,10 +6,6 @@ app = Flask(__name__)
 # Carregar o modelo treinado
 model = joblib.load("model.pkl")
 
-@app.route('/')
-def home():
-    return "API está funcionando!"
-
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
