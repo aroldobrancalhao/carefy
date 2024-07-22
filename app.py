@@ -4,7 +4,7 @@ import joblib
 app = Flask(__name__)
 
 # Carregar o modelo treinado
-model = joblib.load("/home/aroldo/market4u/Carefy/model.pkl")
+model = joblib.load("model.pkl")
 
 @app.route('/')
 def home():
