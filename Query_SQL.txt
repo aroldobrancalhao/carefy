@@ -1,0 +1,70 @@
+Weather Observation Station 4 | HackerRank 
+
+SELECT COUNT(city) - COUNT(DISTINCT City) AS DIFFERENCE FROM Station;
+
+-------------------------------------------------------------------------------------------------
+
+SQL Project Planning | HackerRank 
+
+CREATE VIEW project_start AS
+(
+        SELECT start_date, ROW_NUMBER() OVER(ORDER BY start_date) AS r_start FROM projects
+        WHERE start_date NOT IN (SELECT end_date FROM projects)
+);
+
+CREATE VIEW project_end AS
+(
+        SELECT end_date, ROW_NUMBER() OVER(ORDER BY end_date) AS r_end FROM projects
+        WHERE end_date NOT IN (SELECT start_date FROM projects)
+);
+
+SELECT project_start.start_date, project_end.end_date FROM project_start, project_end
+WHERE project_start.r_start = project_end.r_end
+ORDER BY DATEDIFF(project_end.end_date, project_start.start_date), project_start.start_date;
+
+-------------------------------------------------------------------------------------------------
+
+Top Competitors | HackerRank 
+
+SELECT h.hacker_id, h.name
+FROM hackers h
+JOIN submissions s ON h.hacker_id = s.hacker_id
+JOIN challenges c ON s.challenge_id = c.challenge_id
+JOIN difficulty d ON c.difficulty_level = d.difficulty_level
+WHERE s.score = d.score
+GROUP BY h.hacker_id, h.name
+HAVING COUNT(*) > 1
+ORDER BY COUNT(*) DESC, h.hacker_id ASC;
+
+------------------------------------------------------------------------------------------------
+
+Interviews | HackerRank 
+
+SELECT
+        c.contest_id,
+        c.hacker_id,
+        c.name,
+        SUM(IFNULL(ss.tots, 0)) AS ts,
+        SUM(IFNULL(ss.totas, 0)) AS tas,
+        SUM(IFNULL(vs.totv, 0)) AS tv,
+        SUM(IFNULL(vs.totuv, 0)) AS tuv
+FROM contests c
+JOIN colleges clg ON clg.contest_id = c.contest_id
+JOIN challenges chlg ON chlg.college_id = clg.college_id
+LEFT JOIN
+(
+        SELECT challenge_id, SUM(total_submissions) AS tots, SUM(total_accepted_submissions) AS totas
+        FROM submission_stats
+        GROUP BY challenge_id
+) ss
+ON ss.challenge_id = chlg.challenge_id
+LEFT JOIN
+(
+        SELECT challenge_id, SUM(total_views) AS totv, SUM(total_unique_views) AS totuv
+        FROM view_stats
+        GROUP BY challenge_id
+) vs
+ON vs.challenge_id = chlg.challenge_id
+GROUP BY 1,2,3
+HAVING ts + tas + tv + tuv != 0
+ORDER BY 1;
